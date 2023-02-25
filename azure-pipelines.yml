@@ -5,10 +5,10 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  azureSubscription: '<subscription-name>'
-  appName: '<app-name>'
+  azureSubscription: '<java>'
+  appName: '<java>'
   resourceGroupName: '<resource-group-name>'
-  location: '<location>'
+  location: '<java6>'
 
 steps:
 - task: NodeTool@0
@@ -32,10 +32,10 @@ steps:
   inputs:
     azureSubscription: $(azureSubscription)
     appType: 'webAppLinux'
-    appName: $(appName)
+    appName: $(java)
     package: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
     runtimeStack: 'NODE|14-lts'
     startupCommand: 'npm start'
     resourceGroupName: $(resourceGroupName)
-    location: $(location)
+    location: $(java6)
   displayName: 'Deploy to Azure App Service'
