@@ -1,11 +1,41 @@
+trigger:
+- main
+
 pool:
-  vmImage: ubuntu-latest
+  vmImage: 'ubuntu-latest'
+
+variables:
+  azureSubscription: '<subscription-name>'
+  appName: '<app-name>'
+  resourceGroupName: '<resource-group-name>'
+  location: '<location>'
 
 steps:
-# Node install
 - task: NodeTool@0
-  displayName: Node install
   inputs:
-    versionSpec: '12.x' # The version we're installing
-# Write the installed version to the command line
-- script: which node
+    versionSpec: '14.x'
+  displayName: 'Install Node.js'
+
+- script: |
+    npm install
+    npm run build
+  displayName: 'npm install and build'
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(System.DefaultWorkingDirectory)/dist'
+    includeRootFolder: false
+    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+    replaceExistingArchive: true
+
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: $(azureSubscription)
+    appType: 'webAppLinux'
+    appName: $(appName)
+    package: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+    runtimeStack: 'NODE|14-lts'
+    startupCommand: 'npm start'
+    resourceGroupName: $(resourceGroupName)
+    location: $(location)
+  displayName: 'Deploy to Azure App Service'
